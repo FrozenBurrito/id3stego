@@ -1,10 +1,36 @@
-<img src="screenshot-usage.png" width="90%" height="90%" />
-
 # id3stego v0.1
 
 id3stego is a simple command line utility for demonstrating audio file metadata insertion steganography.  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
 
-## Description
+## Restriction on Use (Educational Use Only)
+
+id3stego is intended and released solely for educational use, which use must comply with all applicable laws, rules, and regulations. id3stego may not be used for any other purpose. The included license is hereby amended to incorporate this restriction. 
+
+## Getting Started 
+* Download [id3stego's Latest Release](https://github.com/FrozenBurrito/id3stego/releases/download/v0.1.0/id3stego.exe) (Windows 64-bit).
+* Also available in this repo's sidebar under 'Releases.'
+
+## Usage and Examples (Windows Powershell)
+
+### General Usage Info
+```
+.\id3stego -h
+```
+<img src="screenshot-usage.png" width="90%" height="90%" />
+
+### **Put (Insert) Mode**
+```
+.\id3stego -m put -a [audio_file] -o [other_file]
+```
+<img src="screenshot-put-mode.png" width="90%" height="90%" />
+
+### **Get (Extract) Mode**
+```
+.\id3stego -m get -a [audio_file]
+```
+<img src="screenshot-get-mode.png" width="90%" height="90%" />
+
+## Detailed Description
 
 I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/stable/rust-by-example/)! I also hopes it helps my students to learn more about steganography! Here's the specifics:
 * **Put Mode** (ex: .\id3stego -m put -a test.mp3 -o test.jpg)
@@ -34,34 +60,6 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
     * There is probably a more idiomatic and less verbose way to handle error propagation and messages (custom error types?).  May revisit this as I learn more Rust.
 * Demonstrates a weak form of insertion steganography.
     * As an extension activity for interested students, try using a different utility to dump and investigate all id3v2 metadata.
-
-## Restriction on Use (Educational Use Only)
-
-id3stego is intended and released solely for educational use, which use must comply with all applicable laws, rules, and regulations. id3stego may not be used for any other purpose. The included license is hereby amended to incorporate this restriction. 
-
-## Getting Started 
-* Download [id3stego's Latest Release](https://github.com/FrozenBurrito/id3stego/releases/download/v0.1.0/id3stego.exe) (Windows 64-bit).
-* Also available in this repo's sidebar under 'Releases.'
-
-## Usage and Examples (Windows Powershell)
-
-### General Usage Info
-```
-.\id3stego -h
-```
-<img src="screenshot-usage.png" width="90%" height="90%" />
-
-### **Put (Insert) Mode**
-```
-.\id3stego -m put -a [audio_file] -o [other_file]
-```
-<img src="screenshot-put-mode.png" width="90%" height="90%" />
-
-### **Get (Extract) Mode**
-```
-.\id3stego -m get -a [audio_file]
-```
-<img src="screenshot-get-mode.png" width="90%" height="90%" />
 
 ## What if I want to build id3stego myself?
 
