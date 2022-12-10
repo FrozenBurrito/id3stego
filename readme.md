@@ -36,7 +36,7 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
 * **Put Mode** (ex: .\id3stego -m put -a test.mp3 -o test.jpg)
     * specified audio file (ex: -a test.mp3) and specified other file (-o test.jpg) must be in same working directory as id3stego.exe
     * embeds other file (ex: -o test.jpg) into audio file's (ex: -a test.mp3) id3v2 metadata
-        * uses id3v2 general capsulated object ("GEOB")
+        * uses id3v2 general encapsulated objects ("GEOB")
     * sets frame description key to id3stego + 10 random characters (used for 'get'/'extract' mode)
     * maximum embedded file size is 16mb (max id3v2 frame size)
     * output audio file (test.mp3 + test.jpg) saved to working directory with filename prefix 'output-'
