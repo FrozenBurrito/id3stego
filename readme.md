@@ -31,12 +31,12 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
 * Demonstrates a weak form of insertion steganography.
     * Trying detecting and extracting by dumping all id3v2 metadata (maybe an extension activity for interested students?)
  
-## Restriction (Educational Use Only)
+## Restriction on Use (Educational Use Only)
 
 id3stego is intended and released solely for educational use, which use must comply with all applicable laws, rules, and regulations. id3stego may not be used for any other purpose. The included license is hereby amended to incorporate this restriction. 
 
 ## Getting Started 
-* Download the [Latest Release](https://github.com/FrozenBurrito/id3stego.git) (Windows 64-bit).
+* Download [id3stego's Latest Release](https://github.com/FrozenBurrito/id3stego/releases/download/v0.1.0/id3stego.exe) (Windows 64-bit).
 * Also available in this repo's sidebar under 'Releases.'
 
 ## Usage and Examples (Windows Powershell)
