@@ -1,0 +1,128 @@
+# id3stego v0.1
+
+id3stego is a simple command line utility for demonstrating audio file insertion steganography.  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
+
+## Description
+
+I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/stable/rust-by-example/)! I also hopes it helps my students to learn more about steganography! Here's the specifics:
+* **Put Mode** (ex: .\id3stego -m put -a test.mp3 -o test.jpg)
+    * embeds other file (-o test.jpg) into audio file's (-a test.mp3) id3v2 metadata
+        * uses id3v2 general capsulated object ("GEOB")
+    * sets frame description key to id3stego + 10 random characters (used for 'get'/'extract' mode)
+    * maximum embedded file size is 16mb (max id3v2 frame size)
+    * output audio file (test.mp3 + test.jpg) saved to working directory with filename prefix 'output-'
+        * ex: output-test.mp3
+    * does NOT modify audio file (-a test.mp3) or other file (-o test.jpg)
+    * can embed multiple files into one audio file, but current version requires multiple put mode executions
+        * ex step 1: .\id3stego -m put -a test.mp3 -o test.jpg
+            * creates output-test.mp3 (test.mp3 + test.jpg)
+        * ex step 2: .\id3stego -m put -a output-test.mp3 -o test.txt
+            * creates output-output.test.mp3 (test.mp3 + test.jpg + test.txt)
+* **Get Mode** (ex: .\id3stego -m get -a example-output-test.mp3)
+    * extracts all files previously embedded by id3stego from audio file's (-a output-test.mp3) id3v2 metadata
+        * uses frame description key to search audio file (-a output-test.mp3)
+    * saves extracted files to working directory with filename prefix 'extracted-'
+        * ex: test.jpg saved as extracted-test.jpg
+        * ex: test.txt saved as extracted-test.txt
+    * does NOT modify audio file (-a output-test.mp3)
+* Note about verbosity
+    * Verbose checkpoint and error handling (to help me learn Rust, '? expanded to match)
+    * There is probably a more idiomatic and less verbose way to handle error propagation and messages (custom error types?).  May revisit this as I learn more Rust.
+* Demonstrates a weak form of insertion steganography.
+    * Trying detecting and extracting by dumping all id3v2 metadata (maybe an extension activity for interested students?)
+ 
+## Restriction (Educational Use Only)
+
+id3stego is intended and released solely for educational use, which use must comply with all applicable laws, rules, and regulations. id3stego may not be used for any other purpose. The included license is hereby amended to incorporate this restriction. 
+
+## Getting Started 
+* Download the [Latest Release](https://github.com/FrozenBurrito/id3stego.git) (Windows 64-bit).
+* Also available in this repo's sidebar under 'Releases.'
+
+## Usage and Examples (Windows Powershell)
+
+### General Usage Info
+```
+.\id3stego -h
+```
+<img src="screenshot-usage.png" width="75%" height="75%" />
+
+### **Put (Insert) Mode**
+```
+.\id3stego -m put -a [audio_file] -o [other_file]
+```
+<img src="screenshot-put-mode.png" width="75%" height="75%" />
+
+### **Get (Extract) Mode**
+```
+.\id3stego -m get -a [audio_file]
+```
+<img src="screenshot-get-mode.png" width="75%" height="75%" />
+
+## What if I want to build id3stego myself?
+
+Building id3stego is easy.  
+* First, download and install the lastest version of Rust [here](https://www.rust-lang.org/tools/install).
+* Next, try: 
+```
+git clone https://github.com/FrozenBurrito/id3stego.git 
+cd id3stego
+cargo build
+```
+* Or, try: 
+```
+git clone https://github.com/FrozenBurrito/id3stego.git 
+cd id3stego
+cargo run -- -h
+```
+* To test 'get' mode with the included example, try:
+```
+cargo run -- -m get example-output-test.mp3
+```
+
+## Suggestions or Contributions
+
+Let me know if you have any questions or suggestions!  Please feel free to contribute.
+
+## Authors
+
+Jon Morris, [frozenburrito](https://github.com/frozenburrito)
+
+## Version History
+* 0.1
+    * It works!
+
+## Future Features or Changes
+
+* (minor) Custom frame description keys set by users with '-k' option 
+    * id3stego uses the frame description key to search for and extract embedded frames containing file data
+    * in v0.1, frame description key set as id3stego + 10 random chars to avoid collisions when embedding multiple files 
+* (minor) Option to allow users to set output file name (or output file name prefix)
+* (minor) Support embedding multiple files with one 'put' mode call.
+* (minor) Option to strip (remove) all embedded from input audio file in 'get' mode ('-s' flag)
+    * Current version does not modify audio file in 'get' mode 
+* (minor/patch) Add check for tag size > 256mb, instead of relying on error propagation
+* (major) GUI -- immediate mode GUIs, like [egui](https://github.com/emilk/egui), are cool!
+
+## License
+
+This project is licensed under the MIT License.  See the LICENSE.md file for details.
+
+## Helpful Links
+
+* [relevant id3v2 specification](https://id3.org/id3v2.3.0#General_encapsulated_object)
+* [id3v2 made easy](https://id3lib.sourceforge.net/id3/easy.html)
+    * Note maximum id3v2 tag size of 256mb and frame size of 16mb.
+* [NASA's copyright-free audio](https://www.nasa.gov/connect/sounds/index.html) 
+    * test.mp3 = http://www.nasa.gov/mp3/584791main_spookysaturn.mp3 (Cassini Mission, Saturn Radio Emissions)
+* [NASA's copyright-free images](https://images.nasa.gov/) 
+    * test.jpg = https://images.nasa.gov/details-art001e002065
+* [Public Domain Expansion 2022](https://cdlib.org/cdlinfo/2022/02/14/public-domain-expansion-2022-highlights-of-the-harlem-renaissance-and-modernist-writers-in-hathitrusts-newly-opened-volumes/) 
+    * test.txt = Langston Hughes' "The Dream Keeper" from *The Weary Blues* (1926)
+* [Setting Default Powershell Prompt](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_prompts?view=powershell-7.3)(helpful for usage screenshots)
+
+## Helpful Rust Crates (Libraries)
+
+* [rust-id3](https://docs.rs/id3/latest/id3/)
+* [clap](https://docs.rs/clap/latest/clap/)
+* [infer](https://crates.io/crates/infer)
