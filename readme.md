@@ -45,19 +45,19 @@ id3stego is intended and released solely for educational use, which use must com
 ```
 .\id3stego -h
 ```
-<img src="screenshot-usage.png" width="75%" height="75%" />
+<img src="screenshot-usage.png" width="90%" height="90%" />
 
 ### **Put (Insert) Mode**
 ```
 .\id3stego -m put -a [audio_file] -o [other_file]
 ```
-<img src="screenshot-put-mode.png" width="75%" height="75%" />
+<img src="screenshot-put-mode.png" width="90%" height="90%" />
 
 ### **Get (Extract) Mode**
 ```
 .\id3stego -m get -a [audio_file]
 ```
-<img src="screenshot-get-mode.png" width="75%" height="75%" />
+<img src="screenshot-get-mode.png" width="90%" height="90%" />
 
 ## What if I want to build id3stego myself?
 
