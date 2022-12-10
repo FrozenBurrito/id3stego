@@ -2,7 +2,7 @@
 
 # id3stego v0.1
 
-id3stego is a simple command line utility for demonstrating audio file insertion steganography.  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
+id3stego is a simple command line utility for demonstrating audio file metadata insertion steganography.  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
 
 ## Description
 
