@@ -55,11 +55,12 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
         * ex: test.jpg saved as extracted-test.jpg
         * ex: test.txt saved as extracted-test.txt
     * does NOT modify audio file (ex: -a output-test.mp3)
-* Note about verbosity
-    * Verbose checkpoint and error handling (to help me learn Rust, '? expanded to match)
-    * There is probably a more idiomatic and less verbose way to handle error propagation and messages (custom error types?).  May revisit this as I learn more Rust.
 * Demonstrates a weak form of insertion steganography.
     * As an extension activity for interested students, try using a different utility to dump and investigate all id3v2 metadata.
+* Note about verbosity:
+    * Always prints verbose progress output.
+    * To help me better understand Rust, verbose error propagation used ('?' always expanded to match)
+        * There is probably a more idiomatic and less verbose way to handle error propagation and messages (custom error types?).  May revisit this as I learn more Rust.
 
 ## What if I want to build id3stego myself?
 
