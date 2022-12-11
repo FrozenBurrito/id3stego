@@ -128,7 +128,7 @@ This project is licensed under the MIT License.  See the LICENSE.md file for det
 * ["Public Domain Expansion 2022: Highlights of the Harlem Renaissance"](https://cdlib.org/cdlinfo/2022/02/14/public-domain-expansion-2022-highlights-of-the-harlem-renaissance-and-modernist-writers-in-hathitrusts-newly-opened-volumes/) 
     * test.txt = Langston Hughes' "The Dream Keeper" from *The Weary Blues* (1926)
 * [Setting Default Powershell Prompt](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_prompts?view=powershell-7.3) 
-    * Helpful for masking local directory sturcture shown on prompt before creating usage screenshots
+    * Helpful for masking local directory structure in PS prompt before taking usage screenshots
 * [Ryan Levick's Introduction to Rust on Youtube (2 Parts)](https://www.youtube.com/watch?v=WnWGO-tLtLA)
 
 ## Helpful Rust Crates (Libraries)
