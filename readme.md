@@ -1,6 +1,6 @@
 # id3stego v0.1
 
-id3stego is a simple command line utility for demonstrating audio file metadata insertion steganography.  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
+id3stego is a simple command line utility for demonstrating audio file metadata steganography (weak insertion stego).  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
 
 ## Use Restriction (Educational Use Only)
 
@@ -56,7 +56,7 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
         * ex: test.txt saved as extracted-test.txt
     * does NOT modify audio file (ex: -a output-test.mp3)
 * Demonstrates a weak form of insertion steganography.
-    * As an extension activity for interested students, try using a different utility to dump and investigate all id3v2 metadata.
+    * As an extension activity for interested students, try using a different utility to dump and investigate all id3v2 metadata from an output file or example-output-test.mp3.
 * Note about verbosity:
     * Always prints verbose progress output.
     * To help me better understand Rust, verbose error propagation used ('?' always expanded to match)
