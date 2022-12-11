@@ -81,7 +81,7 @@ cargo run -- -h
 ```
 * To test 'get' mode with the included example, try:
 ```
-cargo run -- -m get example-output-test.mp3
+cargo run -- -m get -a example-output-test.mp3
 ```
 
 ## Suggestions or Contributions
@@ -98,17 +98,17 @@ Jon Morris, [frozenburrito](https://github.com/frozenburrito)
 
 ## Future Features or Changes (To Do List)
 
-* (minor) Support for embedding multiple other files with one 'put' mode execution
-* (minor) Custom frame description keys set by users with '-k' option 
+* (minor) Add support for embedding multiple other files with one 'put' mode execution
+* (minor) Add custom frame description keys set by users with '-k' option 
     * id3stego uses the frame description key to search for and extract embedded frames containing file data
     * in v0.1, frame description key set as id3stego + 10 random chars to avoid collisions when embedding multiple files 
-* (minor) Option to set output file name (or output file name prefix)
-* (minor) Option to strip (remove) all embedded files from input audio file in 'get' mode ('-s' flag)
+* (minor) Add option to set output file name (or output file name prefix)
+* (minor) Add option to strip (remove) all embedded files from input audio file in 'get' mode ('-s' flag)
     * Current version does not modify audio file in 'get' mode 
 * (minor) Linux build and release
 * (minor/patch) Add check for tag size > 256mb, instead of relying on error propagation
 * (minor/patch) Add pre-check re whether audio file (ex: -a test.mp3) and specified other file (-o test.jpg) are in same working directory as id3stego.exe (or alternatives, e.g., output file pre-fix --> postfix + ensuring full path is not used to write output and extracted files)
-* (major) support for other files of size > 16mb (max id3v2 frame size) by embedding data into multiple frames (note: id3v2 tag size of 256mb)
+* (major) Add support for other files of size > 16mb (max id3v2 frame size) by embedding data into multiple frames (note: id3v2 tag size of 256mb)
 * (major) GUI -- immediate mode GUIs, like [egui](https://github.com/emilk/egui), are cool!
 
 ## License
