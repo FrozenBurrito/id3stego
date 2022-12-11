@@ -338,7 +338,7 @@ fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error
         }
     };  
 
-    // iterate all encapsulated object frames contained in discovered id3v2 frame
+    // iterate all encapsulated object frames contained in discovered id3v2 tag
     let mut id3stego_frame_count = 0;
     println!("Checkpoint (Get Mode): Searching id3v2 tag for frames containing files previously embedded by id3stego.");
     let mut encapsulated_objects = tag.encapsulated_objects();
