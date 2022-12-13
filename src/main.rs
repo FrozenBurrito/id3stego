@@ -1,12 +1,22 @@
 use std::env;
 use std::io::Read;
 use std::path::Path;
-use clap::{command, Arg};
+use clap::{command, Arg, ArgAction};
 use id3::{Tag, Version, Error, ErrorKind, TagLike};
 use id3::frame::EncapsulatedObject;
 use infer;
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
+
+// See https://stackoverflow.com/questions/63302814/is-there-a-way-to-disable-enable-the-println-macro
+// See also https://veykril.github.io/tlborm/decl-macros/patterns/tt-muncher.html re tt munching
+macro_rules! println {
+    ($($rest:tt)*) => {
+        if !std::env::var("QUIET").is_ok() {
+            std::println!($($rest)*);
+        }
+    }
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let argument_matches = command!()
@@ -16,29 +26,46 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .long("mode")
                 .help("\'put\' (or \'insert\') OR \'get\' (or \'extract\')")
                 .required(false)
+                .action(ArgAction::Set)
         )
         .arg(
             Arg::new("audio_file")
                 .short('a')
-                .long("af")
-                .help("Input audio file of type mp3, wav, or aiff (may be copied, but not modified)")
+                .long("audiofile")
+                .help("Input audio file of type mp3, wav, or aiff (will not be modified)")
                 .required(false)
+                .action(ArgAction::Set)
             )
         .arg(
             Arg::new("other_file")
                 .short('o')
-                .long("of")
-                .help("File (any type, size < 16mb) to embed in audio file (may be copied, but not modified)")
+                .long("otherfile")
+                .help("File (any type, size < 16mb) to embed in audio file (will not be modified)")
                 .required(false)
+                .action(ArgAction::Set)
+        )
+        .arg(
+            Arg::new("quiet")
+                .short('q')
+                .long("quiet")
+                .help("Quiet (suppress) all output except errors.")
+                .required(false)
+                .action(ArgAction::SetTrue)
         ).get_matches();
 
     let help_msg = "For usage information, type .\\id3stego -h".to_string();
 
+    // if quiet cl arg flag used (-q), set env variable (process) used by println! macro
+    // existence checked in println! macro (not value)
+    if argument_matches.get_flag("quiet") {
+        std::env::set_var("QUIET", "ON");
+    }
+    
     let mode = argument_matches.get_one::<String>("mode");
     match mode {
         None => {
-            println!("Error: No mode type (-m put or -m get) specified.");
-            println!("{}", &help_msg);
+            eprintln!("Error: No mode type (-m put or -m get) specified.");
+            eprintln!("{}", &help_msg);
         }
         Some(mode) => {
             let audio_filename = argument_matches.get_one::<String>("audio_file");
@@ -46,16 +73,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if mode == "put" || mode == "insert" {
                 match audio_filename {
                     None => {
-                        println!("Error (Put Mode): No audio file (-a filename) specified.");
-                        println!("{}", &help_msg);
+                        eprintln!("Error (Put Mode): No audio file (-a filename) specified.");
+                        eprintln!("{}", &help_msg);
                     }
                     Some(audio_filename) => {
                         if Path::exists(Path::new(audio_filename)) {
                             println!("Checkpoint (Put Mode): Audio file exists in working directory.");
                             match other_filename {
                                 None => {
-                                    println!("Error (Put Mode): No other file (-o filename) specified.");
-                                    println!("{}", &help_msg);
+                                    eprintln!("Error (Put Mode): No other file (-o filename) specified.");
+                                    eprintln!("{}", &help_msg);
                                 }                                
                                 Some(other_filename) => {
                                     if Path::exists(Path::new(other_filename)) {
@@ -66,20 +93,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                                     output_filename, &audio_filename, &other_filename);
                                             }
                                             Err(_) => {
-                                                println!("{}", &help_msg);
+                                                eprintln!("{}", &help_msg);
                                             }
                                         }
                                     }
                                     else {
-                                        println!("Error (Put Mode): Other file (-o filename) not found in working directory.");
-                                        println!("{}", &help_msg);
+                                        eprintln!("Error (Put Mode): Other file (-o filename) not found in working directory.");
+                                        eprintln!("{}", &help_msg);
                                     }
                                 }
                             }
                         }
                         else {
-                            println!("Error (Put Mode): Audio file (-a filename) not found in working directory.");
-                            println!("{}", &help_msg);
+                            eprintln!("Error (Put Mode): Audio file (-a filename) not found in working directory.");
+                            eprintln!("{}", &help_msg);
                         }
                     }
                 }
@@ -87,8 +114,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             else if mode == "get" || mode == "extract" {
                 match audio_filename {
                     None => {
-                        println!("Error (Get Mode): No audio filename specified.");
-                        println!("{}", &help_msg);
+                        eprintln!("Error (Get Mode): No audio filename specified.");
+                        eprintln!("{}", &help_msg);
                     }
                     Some(audio_filename) => {
                         if Path::exists(Path::new(audio_filename)) {
@@ -108,7 +135,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                                 &audio_filename);                     
                                         }
                                     }
-                                    println!("Checkpoint (Get Mode): Completed. Note that {} was not modified.", &audio_filename); 
+                                    println!("Checkpoint (Get Mode): Success! Note that {} was not modified.", &audio_filename); 
                                 }
                                 Err(_) => {
                                     println!("{}", &help_msg);
@@ -116,19 +143,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             }
                         }
                         else {
-                            println!("Error (Get Mode): Audio file (-a filename) not found in working directory.");
-                            println!("{}", &help_msg);
+                            eprintln!("Error (Get Mode): Audio file (-a filename) not found in working directory.");
+                            eprintln!("{}", &help_msg);
                         }
                     }
                 }
             }
             else {
-                println!("Error: Invalid mode type (-m mode) specified.");
-                println!("{}", &help_msg);
+                eprintln!("Error: Invalid mode type (-m mode) specified.");
+                eprintln!("{}", &help_msg);
             }
         }
     }
+    
+    // if previously set, remove env (process) variable QUIET
+    if std::env::var("QUIET").is_ok() {
+        std::env::remove_var("QUIET");
+    }
+    
     Ok(())
+
 }
 
 fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn std::error::Error>> {
@@ -143,11 +177,11 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
         Ok(supported_ok) => {
             match supported_ok {
                 Some(supported_filetype) => {
-                        println!("Checkpoint (Put Mode): Mime-type of {} is \'{}\'.", 
-                            &audio_filename, supported_filetype);
+                    println!("Checkpoint (Put Mode): Mime-type of {} is \'{}\'.", 
+                        &audio_filename, supported_filetype);
                 }
                 None => {
-                    println!("Error (Put Mode): Mime-type of {} must be mp3, wav, or aiff.", 
+                    eprintln!("Error (Put Mode): Mime-type of {} must be mp3, wav, or aiff.", 
                         &audio_filename);
                     return Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, 
                         "Unsupported audio file (-a audio_file) type.")));
@@ -155,7 +189,7 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
             }
         }
         Err(err) => {
-            println!("Error (Put Mode): Unable to determine mime-type of {} (mp3, wav, or aiff required).", 
+            eprintln!("Error (Put Mode): Unable to determine mime-type of {} (mp3, wav, or aiff required).", 
                 &audio_filename);
             return Err(err)
         }
@@ -168,7 +202,7 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
             other_file
         }
         Err(err) => {
-            println!("Error (Put Mode): Unable to open {}.", &other_filename);
+            eprintln!("Error (Put Mode): Unable to open {}.", &other_filename);
             return Err(Box::new(err))
         }
     };
@@ -184,14 +218,14 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
                     bytes_read.to_string(), &other_filename);
             }
             else {
-                println!("Error (Put Mode): Other file {} exceeds 16mb (id3v2 max frame size).",
+                eprintln!("Error (Put Mode): Other file {} exceeds 16mb (id3v2 max frame size).",
                     &other_filename);
                 return Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, 
                     "Max id3v2 frame size (16mb) exceeded.")));
             }
         }
         Err(err) => {
-            println!("Error (Put Mode): Unable to read bytes from {} into buffer.", &other_filename);
+            eprintln!("Error (Put Mode): Unable to read bytes from {} into buffer.", &other_filename);
             return Err(Box::new(err))
         }
     };
@@ -219,7 +253,7 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
                     &audio_filename, &output_filename, bytes_copied.to_string());
         }
         Err(err) => {
-            println!("Error (Put Mode): Unable to copy {}.", &audio_filename);
+            eprintln!("Error (Put Mode): Unable to copy {}.", &audio_filename);
             return Err(Box::new(err))
         }
     }
@@ -236,7 +270,7 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
             Tag::new()
         }
         Err(err) => {
-            println!("Error (Put Mode): Unable to find or create id3v2 tag in {}.", &output_filename);
+            eprintln!("Error (Put Mode): Unable to find or create id3v2 tag in {}.", &output_filename);
             error_cleanup(&output_filename);
             return Err(Box::new(err))
         }
@@ -284,7 +318,7 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
             println!("Checkpoint (Put Mode): Writing id3v2 tag with new frame to {}.", &output_filename);
         }
         Err(err) => {
-            println!("Error (Put Mode): Unable to write finalized id3v2 tag to {}.", &output_filename);
+            eprintln!("Error (Put Mode): Unable to write finalized id3v2 tag to {}.", &output_filename);
             error_cleanup(&output_filename);
             return Err(Box::new(err))
         }
@@ -303,10 +337,10 @@ fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error
             match supported_ok {
                 Some(supported_filetype) => {
                         println!("Checkpoint (Get Mode): Mime-type of {} is \'{}\'.", 
-                            &audio_filename, supported_filetype);
+                            &audio_filename, supported_filetype); 
                 }
                 None => {
-                    println!("Error (Get Mode): Mime-type of {} must be mp3, wav, or aiff.", 
+                    eprintln!("Error (Get Mode): Mime-type of {} must be mp3, wav, or aiff.", 
                         &audio_filename);
                     return Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, 
                         "Unsupported audio file (-a audio_file) type.")));
@@ -314,13 +348,13 @@ fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error
             }
         }
         Err(err) => {
-            println!("Error (Get Mode): Unable to determine mime-type of {} (mp3, wav, or aiff required).", 
+            eprintln!("Error (Get Mode): Unable to determine mime-type of {} (mp3, wav, or aiff required).", 
                 &audio_filename);
             return Err(err)
         }
     }
     
-    // search for id3 tag in output_filename, create if none found
+    // search for id3 tag in output_filename, ret if none found
     let tag = match Tag::read_from_path(&audio_filename) {
         Ok(tag) => {
             println!("Checkpoint (Get Mode): Extracting existing id3v2 tag from {}.", &audio_filename);
@@ -332,7 +366,7 @@ fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error
                 return Err(Box::new(err))
             }
             _ => {
-                println!("Error (Get Mode): Unable to find id3v2 tag in {}. No data found to extract.", &audio_filename);
+                eprintln!("Error (Get Mode): Unable to find id3v2 tag in {}. No data found to extract.", &audio_filename);
                 return Err(Box::new(err))
             }
         }
@@ -362,7 +396,7 @@ fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error
                                 &frame.filename, extracted_filename_with_prefix);
                         }
                         Err(_) => {
-                            println!("Error (Get Mode): Unable to extract {} from {}",
+                            eprintln!("Error (Get Mode): Unable to extract {} from {}",
                                 &frame.filename, &audio_filename);
                             // do not propagate error, continue iter to next embedded file
                         }
@@ -420,11 +454,11 @@ fn error_cleanup(filename: &String) /* -> Result<(), Box<dyn std::error::Error>>
     // to do:  consider adding directly in put method (only called twice in put function)
     match std::fs::remove_file(filename) {
         Ok(_) => {
-            println!("Error (Put Mode): Cleaning up, removing {}.", filename);
+            eprintln!("Error (Put Mode): Cleaning up, removing {}.", filename);
             //Ok(())
         }
         Err(_) => {
-            println!("Error (Put Mode): Unable to delete (clean up) {}.", filename);
+            eprintln!("Error (Put Mode): Unable to delete (clean up) {}.", filename);
             //return Err(Box::new(err))
             //does not propagate errors (errors handled by put function)
         }
