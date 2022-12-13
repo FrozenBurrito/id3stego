@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None => {
             println!("Error: No mode type (-m put or -m get) specified.");
             println!("{}", &help_msg);
-        },
+        }
         Some(mode) => {
             let audio_filename = argument_matches.get_one::<String>("audio_file");
             let other_filename = argument_matches.get_one::<String>("other_file");
@@ -48,7 +48,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     None => {
                         println!("Error (Put Mode): No audio file (-a filename) specified.");
                         println!("{}", &help_msg);
-                    },
+                    }
                     Some(audio_filename) => {
                         if Path::exists(Path::new(audio_filename)) {
                             println!("Checkpoint (Put Mode): Audio file exists in working directory.");
@@ -56,7 +56,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 None => {
                                     println!("Error (Put Mode): No other file (-o filename) specified.");
                                     println!("{}", &help_msg);
-                                },                                
+                                }                                
                                 Some(other_filename) => {
                                     if Path::exists(Path::new(other_filename)) {
                                         println!("Checkpoint (Put Mode): Other file exists in working directory.");
@@ -89,7 +89,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     None => {
                         println!("Error (Get Mode): No audio filename specified.");
                         println!("{}", &help_msg);
-                    },
+                    }
                     Some(audio_filename) => {
                         if Path::exists(Path::new(audio_filename)) {
                             println!("Checkpoint (Get Mode): Audio file exists in working directory.");                     
@@ -184,7 +184,7 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
                     bytes_read.to_string(), &other_filename);
             }
             else {
-                println!("Error (Put Mode): Other file {} must exceeds 16mb (id3v2 max frame size).",
+                println!("Error (Put Mode): Other file {} exceeds 16mb (id3v2 max frame size).",
                     &other_filename);
                 return Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, 
                     "Max id3v2 frame size (16mb) exceeded.")));
@@ -326,7 +326,7 @@ fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error
             println!("Checkpoint (Get Mode): Extracting existing id3v2 tag from {}.", &audio_filename);
             tag
         }
-        Err(err)=> match err.kind { 
+        Err(err) => match err.kind { 
             ErrorKind::NoTag => {
                 println!("Checkpoint (Get Mode): No id3v2 tag in {}. No data found to extract.", &audio_filename);
                 return Err(Box::new(err))

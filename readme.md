@@ -12,19 +12,19 @@ id3stego is a simple command line utility for demonstrating audio file metadata 
 ```
 .\id3stego -h
 ```
-<img src="screenshot-usage.png" width="90%" height="90%" />
+<img src="usage-screenshots/screenshot-usage.png" width="90%" height="90%" />
 
 ### **Put (Insert) Mode**
 ```
 .\id3stego -m put -a [audio_file] -o [other_file]
 ```
-<img src="screenshot-put-mode.png" width="90%" height="90%" />
+<img src="usage-screenshots/screenshot-put-mode.png" width="90%" height="90%" />
 
 ### **Get (Extract) Mode**
 ```
 .\id3stego -m get -a [audio_file]
 ```
-<img src="screenshot-get-mode.png" width="90%" height="90%" />
+<img src="usage-screenshots/screenshot-get-mode.png" width="90%" height="90%" />
 
 ## Description & More Info
 
