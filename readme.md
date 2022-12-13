@@ -1,13 +1,9 @@
 # id3stego v0.1
 
-id3stego is a simple command line utility for demonstrating audio file metadata steganography (weak insertion stego).  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
-
-## Use Restriction (Educational Use Only)
-
-id3stego is intended and released solely for educational use, which use must comply with all applicable laws, rules, and regulations. id3stego may not be used for any other purpose. The included license is hereby amended to incorporate this restriction. 
+id3stego is a simple command line utility for demonstrating audio file metadata steganography (a weak form of insertion steganography).  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
 
 ## Getting Started 
-* Download [id3stego's Latest Release](https://github.com/FrozenBurrito/id3stego/releases/download/v0.1.0/id3stego.exe) (Windows 64-bit).
+* Download the standalone executable (id3stego.exe) from [id3stego's Latest Release](https://github.com/FrozenBurrito/id3stego/releases/tag/v0.1.0) (Windows 64-bit).
 * Also available in this repo's sidebar under 'Releases.'
 
 ## Usage and Examples (Windows Powershell)
@@ -59,8 +55,8 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
     * As an extension activity for interested students, try using a different utility to dump and investigate all id3v2 metadata from an output file or example-output-test.mp3.
 * Note about verbosity:
     * Always prints verbose progress output.
-    * To help me better understand Rust, verbose error propagation used ('?' always expanded to match)
-        * There is probably a more idiomatic and less verbose way to handle error propagation and messages (custom error types?).  May revisit this as I learn more Rust.
+    * Verbose error propagation used ('?' always expanded to match)
+        * There is probably a more idiomatic and less verbose way to handle error propagation and messages (custom error types?).  I may revisit this as I learn more Rust.
 
 ## What if I want to build id3stego myself?
 
@@ -84,6 +80,12 @@ cargo run -- -h
 ```
 cargo run -- -m get -a example-output-test.mp3
 ```
+
+## License and Use Restriction
+
+This project is licensed under the MIT License, subject to the following use restriction.  See the LICENSE.md file for details.
+
+id3stego is intended and released solely for educational use, which use must comply with all applicable laws, rules, and regulations. id3stego may not be used for any other purpose. The included license is hereby amended to incorporate this restriction. 
 
 ## Suggestions or Contributions
 
@@ -109,12 +111,8 @@ Jon Morris, [frozenburrito](https://github.com/frozenburrito)
 * (minor) Linux build and release
 * (minor/patch) Add check for tag size > 256mb, instead of relying on error propagation
 * (minor/patch) Add pre-check re whether audio file (ex: -a test.mp3) and specified other file (-o test.jpg) are in same working directory as id3stego.exe (or alternatives, e.g., output file pre-fix --> postfix + ensuring full path is not used to write output and extracted files)
-* (major) Add support for other files of size > 16mb (max id3v2 frame size) by embedding data into multiple frames (note: id3v2 tag size of 256mb)
+* (major) Add support for other files of size > 16mb (max id3v2 frame size) by embedding data into multiple frames (note: id3v2 max tag size of 256mb)
 * (major) GUI -- immediate mode GUIs, like [egui](https://github.com/emilk/egui), are cool!
-
-## License
-
-This project is licensed under the MIT License.  See the LICENSE.md file for details.
 
 ## Helpful Links
 
