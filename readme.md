@@ -31,7 +31,7 @@ id3stego is a simple command line utility for demonstrating audio file metadata 
 I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/stable/rust-by-example/)! I also hopes it helps my students to learn more about steganography! Here's the details:
 * **Put Mode** (ex: .\id3stego -m put -a test.mp3 -o test.jpg)
     * embeds other file (ex: -o test.jpg) into audio file's (ex: -a test.mp3) id3v2 metadata
-    * sets frame description key to id3stego + 10 random characters (used for 'get'/'extract' mode)
+    * supports specifying full file paths outside of working directory (ex: -a c:\somewhere_else\test.mp3 -o c:\another_place\test.jpg)
     * maximum embedded file size is 16mb (max id3v2 frame size)
     * output audio file (test.mp3 + test.jpg) saved to same working directory as audio file with filename prefix 'output-'
         * ex: output-test.mp3
@@ -41,8 +41,9 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
             * creates output-test.mp3 (test.mp3 + test.jpg)
         * ex step 2: .\id3stego -m put -a output-test.mp3 -o test.txt
             * creates output-output.test.mp3 (test.mp3 + test.jpg + test.txt)
+    * sets frame description key to id3stego + 10 random characters (used for 'get'/'extract' mode)
 * **Get Mode** (ex: .\id3stego -m get -a example-output-test.mp3)
-    * specified audio file (ex: -a test.mp3) must be in same working directory as id3stego.exe
+    * supports specifying full file path outside of working directory (ex: -a c:\somewhere_else\test.mp3)
     * extracts all files previously embedded by id3stego from audio file's (ex: -a output-test.mp3) id3v2 metadata
         * uses frame description key to search audio file (ex: -a output-test.mp3)
     * saves extracted files to same directory as specified audio file with filename prefix 'extracted-'
