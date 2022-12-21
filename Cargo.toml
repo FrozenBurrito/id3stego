@@ -1,6 +1,6 @@
 [package]
 name = "id3stego"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 author = "frozenburrito"
 description = "Audio file (mp3, wav, aiff) metadata (id3v2) steganography (for educational use only)." 

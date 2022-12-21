@@ -30,12 +30,10 @@ id3stego is a simple command line utility for demonstrating audio file metadata 
 
 I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/stable/rust-by-example/)! I also hopes it helps my students to learn more about steganography! Here's the details:
 * **Put Mode** (ex: .\id3stego -m put -a test.mp3 -o test.jpg)
-    * specified audio file (ex: -a test.mp3) and specified other file (-o test.jpg) must be in same working directory as id3stego.exe
     * embeds other file (ex: -o test.jpg) into audio file's (ex: -a test.mp3) id3v2 metadata
-        * uses id3v2 general encapsulated objects ("GEOB")
     * sets frame description key to id3stego + 10 random characters (used for 'get'/'extract' mode)
     * maximum embedded file size is 16mb (max id3v2 frame size)
-    * output audio file (test.mp3 + test.jpg) saved to working directory with filename prefix 'output-'
+    * output audio file (test.mp3 + test.jpg) saved to same working directory as audio file with filename prefix 'output-'
         * ex: output-test.mp3
     * does NOT modify audio file (ex: -a test.mp3) or other file (-o test.jpg)
     * can embed multiple files into one audio file, but current version requires multiple put mode executions
@@ -47,14 +45,16 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
     * specified audio file (ex: -a test.mp3) must be in same working directory as id3stego.exe
     * extracts all files previously embedded by id3stego from audio file's (ex: -a output-test.mp3) id3v2 metadata
         * uses frame description key to search audio file (ex: -a output-test.mp3)
-    * saves extracted files to working directory with filename prefix 'extracted-'
+    * saves extracted files to same directory as specified audio file with filename prefix 'extracted-'
         * ex: test.jpg saved as extracted-test.jpg
         * ex: test.txt saved as extracted-test.txt
     * does NOT modify audio file (ex: -a output-test.mp3)
 * Demonstrates a weak form of insertion steganography.
     * As an extension activity for interested students, try using a different utility to dump and investigate all id3v2 metadata from an output file or example-output-test.mp3.
+    * Pursuant to relevant id3v2 specification, binary data can be stored in "GEOB" or "PRIV" frames.  
+        * current version only uses id3v2 general encapsulated object ("GEOB") frames
 * Note about verbosity:
-    * Always prints verbose progress output.
+    * Use quiet mode (-q) to suppress verbose output.
     * Verbose error propagation used ('?' always expanded to match)
         * There is probably a more idiomatic and less verbose way to handle error propagation and messages (custom error types?).  I may revisit this as I learn more Rust.
 
@@ -96,6 +96,11 @@ Let me know if you have any questions or suggestions!  Please feel free to contr
 Jon Morris, [frozenburrito](https://github.com/frozenburrito)
 
 ## Version History
+* 0.2
+    * Added quiet mode (.\id3stego -q) to suppress all output except errors.
+    * Added support for full file paths for audio files (-a audio_file) and other files (-o other_file).
+        * Specified files no longer need to be in same working directory as id3stego.exe.
+        * Output files (put mode) and extracted files (get mode) are saved to same directory as specified audio file (-a).
 * 0.1
     * It works!
 
@@ -110,13 +115,15 @@ Jon Morris, [frozenburrito](https://github.com/frozenburrito)
     * Current version does not modify audio file in 'get' mode 
 * (minor) Linux build and release
 * (minor/patch) Add check for tag size > 256mb, instead of relying on error propagation
-* (minor/patch) Add pre-check re whether audio file (ex: -a test.mp3) and specified other file (-o test.jpg) are in same working directory as id3stego.exe (or alternatives, e.g., output file pre-fix --> postfix + ensuring full path is not used to write output and extracted files)
 * (major) Add support for other files of size > 16mb (max id3v2 frame size) by embedding data into multiple frames (note: id3v2 max tag size of 256mb)
+* (major) Add option to choose whether to embed binary data in id3v2 "GEOB" frames (default) or id3v2 "PRIV" frames
 * (major) GUI -- immediate mode GUIs, like [egui](https://github.com/emilk/egui), are cool!
 
 ## Helpful Links
 
-* [relevant part of id3v2 specification](https://id3.org/id3v2.3.0#General_encapsulated_object)
+* [id3v2 specification](https://id3.org/id3v2.3.0)
+    * ["GEOB" frames](https://id3.org/id3v2.3.0#General_encapsulated_object)
+    * ["PRIV" frames](https://id3.org/id3v2.3.0#Private_frame)
 * [id3v2 made easy](https://id3lib.sourceforge.net/id3/easy.html)
     * Note maximum id3v2 tag size of 256mb and frame size of 16mb.
 * [NASA's copyright-free audio](https://www.nasa.gov/connect/sounds/index.html) 
