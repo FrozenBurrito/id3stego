@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Arg::new("audio_file")
                 .short('a')
                 .long("audiofile")
-                .help("Input audio file of type mp3, wav, or aiff (will not be modified)")
+                .help("Path to audio file of type mp3, wav, or aiff (will not be modified)")
                 .required(false)
                 .action(ArgAction::Set)
             )
@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Arg::new("other_file")
                 .short('o')
                 .long("otherfile")
-                .help("File (any type, size < 16mb) to embed in audio file (will not be modified)")
+                .help("Path to other file (any type, size < 16mb) to embed in audio file (will not be modified)")
                 .required(false)
                 .action(ArgAction::Set)
         )
@@ -48,14 +48,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Arg::new("quiet")
                 .short('q')
                 .long("quiet")
-                .help("Quiet (suppress) all output except errors.")
+                .help("Quiet (suppress) all output except errors")
                 .required(false)
                 .action(ArgAction::SetTrue)
         ).get_matches();
 
     let help_msg = "For usage information, type .\\id3stego -h".to_string();
 
-    // if quiet cl arg flag used (-q), set env variable (process) used by println! macro
+    // if quiet cl arg flag used (-q), set env variable QUIET (process) checked by println! macro
     // existence checked in println! macro (not value)
     if argument_matches.get_flag("quiet") {
         std::env::set_var("QUIET", "ON");
@@ -70,7 +70,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(mode) => {
             let audio_filename = argument_matches.get_one::<String>("audio_file");
             let other_filename = argument_matches.get_one::<String>("other_file");
-            if mode == "put" || mode == "insert" {
+            if mode.to_lowercase() == "put" || mode.to_lowercase() == "insert" {
                 match audio_filename {
                     None => {
                         eprintln!("Error (Put Mode): No audio file (-a filename) specified.");
@@ -78,7 +78,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     Some(audio_filename) => {
                         if Path::exists(Path::new(audio_filename)) {
-                            println!("Checkpoint (Put Mode): Audio file exists in working directory.");
+                            println!("Checkpoint (Put Mode): Audio file {} exists.", &audio_filename);
                             match other_filename {
                                 None => {
                                     eprintln!("Error (Put Mode): No other file (-o filename) specified.");
@@ -86,7 +86,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 }                                
                                 Some(other_filename) => {
                                     if Path::exists(Path::new(other_filename)) {
-                                        println!("Checkpoint (Put Mode): Other file exists in working directory.");
+                                        println!("Checkpoint (Put Mode): Other file {} exists.", &other_filename);
                                         match put(audio_filename.to_string(), other_filename.to_string()) {
                                             Ok(output_filename) => {
                                                 println!("Checkpoint (Put Mode): Success! {} is {} + {}. All done!", 
@@ -98,20 +98,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         }
                                     }
                                     else {
-                                        eprintln!("Error (Put Mode): Other file (-o filename) not found in working directory.");
+                                        eprintln!("Error (Put Mode): Other file (-o filename) not found at {}.", &other_filename);
                                         eprintln!("{}", &help_msg);
                                     }
                                 }
                             }
                         }
                         else {
-                            eprintln!("Error (Put Mode): Audio file (-a filename) not found in working directory.");
+                            eprintln!("Error (Put Mode): Audio file (-a filename) not found at {}.", &audio_filename);
                             eprintln!("{}", &help_msg);
                         }
                     }
                 }
             }
-            else if mode == "get" || mode == "extract" {
+            else if mode.to_lowercase() == "get" || mode.to_lowercase() == "extract" {
                 match audio_filename {
                     None => {
                         eprintln!("Error (Get Mode): No audio filename specified.");
@@ -119,15 +119,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     Some(audio_filename) => {
                         if Path::exists(Path::new(audio_filename)) {
-                            println!("Checkpoint (Get Mode): Audio file exists in working directory.");                     
+                            println!("Checkpoint (Get Mode): Audio file exists at {}.", &audio_filename);                     
                             match get(audio_filename.to_string()) {
                                 Ok(extracted_filenames_ok) => {
                                     match extracted_filenames_ok {
                                         Some(extracted_filenames) => {
                                             println!("Checkpoint (Get Mode): id3stego extracted the following {} file(s) from {}:", 
                                                 &extracted_filenames.len().to_string(), &audio_filename);
-                                            for filename in extracted_filenames {
-                                                println!("\t- {} saved to working directory as extracted-{}", filename, filename);
+                                            for (frame_filename, extracted_filename) in extracted_filenames {
+                                                println!("\t- {} saved as {}", frame_filename, extracted_filename);
                                             }
                                         }
                                         None => {
@@ -143,7 +143,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             }
                         }
                         else {
-                            eprintln!("Error (Get Mode): Audio file (-a filename) not found in working directory.");
+                            eprintln!("Error (Get Mode): Audio file (-a filename) not found at {}.", &audio_filename);
                             eprintln!("{}", &help_msg);
                         }
                     }
@@ -168,11 +168,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn std::error::Error>> {
     // success: return output_filename as string
     // failure: prints error message, returns err
+    // to do:  test new output filename code, add to get also for -extracted
 
-    let mut output_filename = "output-".to_string();
-    output_filename.push_str(&audio_filename);
+    let mut output_file_prefix = "output-".to_string();
+    let output_filename = add_filename_prefix_preserve_path(&audio_filename, &audio_filename, &mut output_file_prefix);
 
-    // check file-type of audio_filename
     match is_supported_filetype(&audio_filename) {
         Ok(supported_ok) => {
             match supported_ok {
@@ -247,6 +247,8 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
     };
 
     // copy audio_filename to output_filename
+    // todo, multiple other files: move above previous block; add error cleanup to err of previous block
+    // todo, multiple other files: change return value to vector of strings with output filenames
     match std::fs::copy(&audio_filename, &output_filename) {
         Ok(bytes_copied) => {
             println!("Checkpoint (Put Mode): Copying {} to {} ({} bytes).", 
@@ -277,8 +279,9 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
     };  
 
     // prepare new frame data
+    // do not embed full file path for other file (only filename)
+    let frame_filename = get_filename_drop_path(Path::new(&other_filename), &"".to_string());
     let frame_mime_type = other_file_mimetype;
-    let frame_filename = other_filename.to_owned();
     let frame_data: Vec<u8> = other_file_buffer;
     let mut frame_description_key = "id3stego".to_string();
 
@@ -323,13 +326,17 @@ fn put(audio_filename: String, other_filename: String) -> Result<String, Box<dyn
             return Err(Box::new(err))
         }
     }
+
     Ok(output_filename)
+
 } 
  
-fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error::Error>> {
+fn get(audio_filename: String) -> Result<Option<Vec<(String, String)>>, Box<dyn std::error::Error>> {
     // success: return vector of extracted filenames or none
-    // failure: prints error message, returns err    
-    let mut extracted_filenames: Vec<String> = Vec::new();
+    // failure: prints error message, returns err
+
+    let mut extracted_filenames: Vec<(String, String)> = Vec::new();
+    let mut extracted_file_prefix = "extracted-".to_string();
 
     // check file-type of audio_filename
     match is_supported_filetype(&audio_filename) {
@@ -379,20 +386,17 @@ fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error
     loop {
         match encapsulated_objects.next() {
             Some(frame) => {
-                // extract to working directory if frame placed by id3stego (description is 'id3stego')
-                if frame.description.contains("id3stego") {                    
-                    let mut extracted_filename_with_prefix: String = "extracted-".to_string();
-                    extracted_filename_with_prefix.push_str(&frame.filename);
-
-                    extracted_filenames.push(frame.filename.to_owned());
-                    //extracted_filenames.push(extracted_filename_with_prefix.to_owned());
+                // extract to same directory as audio file if frame placed by id3stego (description is 'id3stego')
+                if frame.description.contains("id3stego") {
+                    let extracted_filename_with_prefix = add_filename_prefix_preserve_path(&audio_filename, &frame.filename, &mut extracted_file_prefix);
+                    extracted_filenames.push( (frame.filename.to_owned(), extracted_filename_with_prefix.to_owned()) );
 
                     println!("Checkpoint (Get Mode): Found embedded file {} (\'{}\' of size {} bytes).",
                         &frame.filename, &frame.mime_type, &frame.data.len().to_string());  
 
                     match std::fs::write(&extracted_filename_with_prefix, &frame.data) {
                         Ok(_) => {
-                            println!("Checkpoint (Get Mode): Extracting {} to working directory with name {}.",
+                            println!("Checkpoint (Get Mode): Extracting {} to {}.",
                                 &frame.filename, extracted_filename_with_prefix);
                         }
                         Err(_) => {
@@ -418,10 +422,10 @@ fn get(audio_filename: String) -> Result<Option<Vec<String>>, Box<dyn std::error
     }
 }
 
-
 fn is_supported_filetype(filename: &String) -> Result<Option<String>, Box<dyn std::error::Error>> {
-    // returns mime-type if filename is of type mp3, wav, or aiff.
-    // otherwise, returns none or error.
+    // returns mime-type if filename is of type mp3, wav, or aiff
+    // otherwise, returns none or error
+
     match infer::get_from_path(filename) {
         Ok(kind_ok) => { 
             match kind_ok { 
@@ -447,6 +451,86 @@ fn is_supported_filetype(filename: &String) -> Result<Option<String>, Box<dyn st
             return Err(Box::new(err))
         }
     };
+}
+
+fn add_filename_prefix_preserve_path(file_path_str: &String, file_name_str: &String, prefix: &mut String) -> String {
+    // constructs output path and filename in form of file_path_str\prefix-file_name_str
+    //
+    // ex as used in put mode:  
+    //  file_path_str = "c:\id3stego\test.mp3", file_name_str = "test.mp3", prefix = "output" 
+    //      -> "c:\id3stego\test.mp3" -> "c:\id3stego\prefix-test.mp3"
+    //
+    // ex as used in get mode:  
+    //  file_path_str = "c:\id3stego\test.mp3", file_name_str = "test.jpg", prefix = "extracted" 
+    //      -> "c:\id3stego\extracted-test.jpg"
+
+
+    // extract filename from full file path
+    let filename_only = get_filename_drop_path(Path::new(&file_name_str), &prefix);
+    
+    // add prefix to filename (require &mut string argument)
+    prefix.push_str(&filename_only);
+
+    // reconstruct full file path by combining path contained in file_path_str with filename_only
+    let file_path = Path::new(&file_path_str);
+    let new_file_path = file_path.with_file_name(&prefix);
+    let new_file_path_str = match new_file_path.to_str() {
+        Some(new_file_path_str) => {
+            new_file_path_str.to_string()
+        }
+        None => {
+            // If unable to reconstrct new path, use filename_only
+            filename_only.to_owned()
+        }
+    };
+
+    // return new file path as String
+    new_file_path_str
+
+}
+
+fn get_filename_drop_path(file_path: &Path, prefix: &String) -> String {
+    // extracts filename from path string
+    // ex: "c:\id3stego\test.jpg" --> "test.jpg"
+
+    let filename_only = match file_path.file_name() {
+        Some(filename_os_str) => {
+            match filename_os_str.to_str() {
+                Some(filename_str) => {
+                    filename_str.to_string()
+                }
+                None => {
+                    // If unable to extract filename from full path, use default filename string
+                    generate_random_filename_with_prefix(prefix.to_owned())
+                }
+            }
+        }
+        None => {
+            // If unable to extract filename from full path, use default filename string
+            generate_random_filename_with_prefix(prefix.to_owned())
+        }
+    };
+
+    // return only filename part of file path
+    filename_only
+
+}
+
+fn generate_random_filename_with_prefix(mut prefix: String) -> String {
+    // generate default output filename (prefix + 5 random chars) 
+    // used if None encountered when extracting filename from full path (unlikely)
+    // or if None encountered when reconstructing full file path with new filename (also unlikely)
+    
+    prefix.push_str( &thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(5)
+        .map(char::from)
+        .collect::<String>()
+    );
+
+    // return prefix + 5 random chars
+    prefix
+
 }
 
 fn error_cleanup(filename: &String) /* -> Result<(), Box<dyn std::error::Error>> */ {
