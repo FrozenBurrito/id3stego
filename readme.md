@@ -1,4 +1,4 @@
-# id3stego v0.1
+# id3stego v0.2
 
 id3stego is a simple command line utility for demonstrating audio file metadata steganography (a weak form of insertion steganography).  It embeds (and extracts) any other file (any type, size <= 16mb) into an mp3, wav, or aiff file's id3v2 metadata.  
 
@@ -43,27 +43,27 @@ I wrote id3stego to help me to get better at [Rust](https://doc.rust-lang.org/st
             * creates output-output.test.mp3 (test.mp3 + test.jpg + test.txt)
     * sets frame description key to id3stego + 10 random characters (used for 'get'/'extract' mode)
 * **Get Mode** (ex: .\id3stego -m get -a example-output-test.mp3)
-    * supports specifying full file path outside of working directory (ex: -a c:\somewhere_else\test.mp3)
     * extracts all files previously embedded by id3stego from audio file's (ex: -a output-test.mp3) id3v2 metadata
-        * uses frame description key to search audio file (ex: -a output-test.mp3)
+        * uses frame description key to search specified audio file (ex: -a output-test.mp3)
+    * supports specifying full file path outside of working directory (ex: -a c:\somewhere_else\test.mp3)
     * saves extracted files to same directory as specified audio file with filename prefix 'extracted-'
         * ex: test.jpg saved as extracted-test.jpg
         * ex: test.txt saved as extracted-test.txt
     * does NOT modify audio file (ex: -a output-test.mp3)
 * Demonstrates a weak form of insertion steganography.
-    * As an extension activity for interested students, try using a different utility to dump and investigate all id3v2 metadata from an output file or example-output-test.mp3.
-    * Pursuant to relevant id3v2 specification, binary data can be stored in "GEOB" or "PRIV" frames.  
-        * current version only uses id3v2 general encapsulated object ("GEOB") frames
+    * As an extension activity for interested students, try using a different utility to dump and investigate all id3v2 metadata from an output file or example-output-test.mp3.  
+    * Current version stores binary data in id3v2 general encapsulated object ("GEOB") frames.
+        * Note that binary data could also be stored in id3v2 "PRIV" frames. 
 * Note about verbosity:
     * Use quiet mode (-q) to suppress verbose output.
-    * Verbose error propagation used ('?' always expanded to match)
-        * There is probably a more idiomatic and less verbose way to handle error propagation and messages (custom error types?).  I may revisit this as I learn more Rust.
+    * Verbose error propagation used ('?' always expanded to match, unwrap() not used)
+        * There is probably a more idiomatic and less verbose way to handle error propagation (custom error types?).  
 
 ## What if I want to build id3stego myself?
 
 Building id3stego is easy.  
 * First, download and install [rustup](https://www.rust-lang.org/tools/install) (rust build tools manager)
-    * Release v0.1.0 was built with `rustc 1.65.0 (897e37553 2022-11-02)'
+    * Release v0.2.0 was built with `rustc 1.65.0 (897e37553 2022-11-02)'
 * Recommend using [Visual Studio Code](https://code.visualstudio.com/download) with [rust-analyzer extension](https://code.visualstudio.com/docs/languages/rust).
 * Next, from a Developer Powershell for VS terminal or a Visual Studio Code Powershell terminal, try: 
 ```
@@ -110,7 +110,7 @@ Jon Morris, [frozenburrito](https://github.com/frozenburrito)
 * (minor) Add support for embedding multiple other files with one 'put' mode execution
 * (minor) Add custom frame description keys set by users with '-k' option 
     * id3stego uses the frame description key to search for and extract embedded frames containing file data
-    * in v0.1, frame description key set as id3stego + 10 random chars to avoid collisions when embedding multiple files 
+    * in v0.2, frame description key set as id3stego + 10 random chars to avoid collisions when embedding multiple files 
 * (minor) Add option to set output file name (or output file name prefix)
 * (minor) Add option to strip (remove) all embedded files from input audio file in 'get' mode ('-s' flag)
     * Current version does not modify audio file in 'get' mode 
