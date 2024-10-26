@@ -94,7 +94,7 @@ Let me know if you have any questions or suggestions!  Please feel free to contr
 
 ## Authors
 
-Jon Morris, [frozenburrito](https://github.com/frozenburrito)
+J Mo, [frozenburrito](https://github.com/frozenburrito)
 
 ## Version History
 * 0.2
